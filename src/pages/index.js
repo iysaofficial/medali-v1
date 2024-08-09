@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Script from "next/script";
 import { Inter } from "next/font/google";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -10,10 +10,18 @@ export default function Home() {
   const [uniqueId, setUniqueId] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedNamaLengkap, setSelectedNamaLengkap] = useState("");
+  const [selectNamaSekolah, setselectNamaSekolah] = useState(""); // Menambah state untuk Nama Sekolah
   const [selectEmailKetua, setselectEmailKetua] = useState(""); // Menambah state untuk Email Ketua team
+  const [selectKategoriMedali, setselectKategoriMedali] = useState(""); // Menambah state untuk Nama Sekolah
   const [phone, setPhone] = useState(""); // Menambah state untuk phone (Nomor WhatsApp)
-
   const adminFee = 4500;
+
+  // Create a reference for the "Nama Ketua Tim" field
+  const namaKetuaRef = useRef(null);
+  const NamaSekolahRef = useRef(null);
+  const EmailKetuaRef = useRef(null);
+  const KategoriMedaliRef = useRef(null);
+
 
   const generateUniqueId = () => {
     const timestamp = new Date().getTime();
@@ -99,10 +107,22 @@ export default function Home() {
     }
 
     if (!selectedNamaLengkap) {
-      alert("Nama lengkap harus diisi.");
+      alert("Nama Ketua Tim harus diisi.");
+      namaKetuaRef.current?.focus(); // Fokuskan ke textarea Nama Ketua Tim
+      namaKetuaRef.current?.scrollIntoView({ behavior: "smooth" }); // Gulung tampilan ke elemen
       return;
     } else if (selectedNamaLengkap.length > 180) {
       alert("Maksimal Penulisan Nama Ketua dan Anggota 180 karakter");
+      namaKetuaRef.current?.focus(); // Fokuskan ke textarea Nama Ketua Tim
+      namaKetuaRef.current?.scrollIntoView({ behavior: "smooth" }); // Gulung tampilan ke elemen
+      return;
+    }
+
+    if (!selectNamaSekolah) {
+      alert("Nama Sekolah harus diisi.");
+      NamaSekolahRef.current?.focus(); // Fokuskan ke textarea Nama Ketua Tim
+      NamaSekolahRef.current?.scrollIntoView({ behavior: "smooth" }); // Gulung tampilan ke elemen
+      return;
     }
 
     if (!selectEmailKetua) {
@@ -118,6 +138,11 @@ export default function Home() {
         "Nomor telepon harus memiliki panjang antara 5 hingga 20 karakter."
       );
       return; // Menghentikan eksekusi fungsi jika panjang phone tidak sesuai
+    }
+
+    if (!selectKategoriMedali) {
+      alert("Kategori Medali harus diisi.");
+      return;
     }
 
     const newUniqueId = generateUniqueId();
@@ -181,39 +206,37 @@ export default function Home() {
   useEffect(() => {
     const scriptURL =
       "https://script.google.com/macros/s/AKfycbxTu-FHeCfIGH3TdVsRM2yOAy7ODPbW-bOG0qFHU4V1uXzn9IoPUP4YGTueR_uvJ9r-mQ/exec";
-  
+
     const form = document.forms["regist-form"];
-  
+
     if (form) {
       const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData(form);
-      
+
         // Debug: cetak data form
         for (let [key, value] of formData.entries()) {
           console.log(key, value);
         }
-      
+
         try {
           await fetch(scriptURL, { method: "POST", body: formData });
           window.location.href = "/"; // Gantikan dengan URL halaman sukses Anda
         } catch (error) {
           console.error("Error saat mengirim data:", error);
         }
-      
+
         form.reset();
       };
-      
-  
+
       form.addEventListener("submit", handleSubmit);
-  
+
       // Lepas event listener saat komponen di-unmount
       return () => {
         form.removeEventListener("submit", handleSubmit);
       };
     }
-  }, []);  
-  
+  }, []);
 
   return (
     <>
@@ -223,11 +246,11 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-        <Script
-          type="text/javascript"
-          src="https://app.sandbox.midtrans.com/snap/snap.js"
-          data-client-key={process.env.NEXT_PUBLIC_CLIENT}
-        ></Script>
+      <Script
+        type="text/javascript"
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key={process.env.NEXT_PUBLIC_CLIENT}
+      ></Script>
       <section className="registration-section">
         <div className="container">
           <div className="content">
@@ -284,20 +307,13 @@ export default function Home() {
                     placeholder="Masukan Nama Ketua Tim"
                     required
                     value={selectedNamaLengkap}
+                    ref={namaKetuaRef} // Mengaitkan ref dengan textarea
                     onChange={(e) => setSelectedNamaLengkap(e.target.value)} // Menambahkan handler onChange
                   ></textarea>
                 </div>
                 <div className="input-box">
                   <label htmlFor="Nama Sekolah" className="form-label">
                     Nama Sekolah/Universitas
-                  </label>
-                  <label>
-                    <p>
-                      Notes : Masukan nama sekolah dengan format sesuai urutan
-                      nama ketua dan anggota tim asal sekolah masing - masing,
-                      dengan format seperti berikut :
-                    </p>
-                    <h6>SMA CERIA</h6>
                   </label>
                   <textarea
                     type="text"
@@ -306,6 +322,9 @@ export default function Home() {
                     className="form-control"
                     placeholder="Masukan Nama Sekolah/Universitas Anda"
                     required
+                    ref={NamaSekolahRef} // Mengaitkan ref dengan textarea
+                    value={selectNamaSekolah}
+                    onChange={(e) => setselectNamaSekolah(e.target.value)}
                   ></textarea>
                 </div>
                 <div className="input-box">
@@ -313,11 +332,7 @@ export default function Home() {
                     Alamat Email Ketua Tim
                   </label>
                   <label>
-                    <p>
-                      Notes : Dimohon untuk mengisi email dengan benar,
-                      pengiriman LOA akan dikirim melalui email address ketua
-                      tim yang di isi.
-                    </p>
+                    <p>Notes : Dimohon untuk mengisi email dengan benar</p>
                   </label>
                   <input
                     type="email"
@@ -340,8 +355,7 @@ export default function Home() {
                       (nomor telepon) +62 81770914xxxx
                     </p>
                     <p>
-                      Notes : Dimohon untuk mengisi nomor ketua tim dengan
-                      benar, untuk dimasukan kedalam group
+                      Notes : Dimohon untuk mengisi nomor ketua tim dengan benar
                     </p>
                   </label>
                   <input
@@ -390,6 +404,9 @@ export default function Home() {
                       className="form-control"
                       placeholder="Pilih Kategori Medali"
                       required
+                      value={selectKategoriMedali}
+                      onChange={(e) => setselectKategoriMedali(e.target.value)}
+  
                     >
                       <option value="">--Pilih Kategori Medali Anda--</option>
                       <option value="GOLD">GOLD</option>
@@ -424,7 +441,7 @@ export default function Home() {
                       readOnly
                     />
                   </div>
-                  <div className="input-box">
+                  <div className="input-box invisible">
                     <label className="form-label">INVOICE ID</label>
                     <input
                       type="text"
