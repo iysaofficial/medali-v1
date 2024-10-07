@@ -32,6 +32,7 @@ export default function Home() {
     selectedCategory,
     price,
     uniqueId,
+    selectNamaSekolah,
     selectedNamaLengkap,
     phone,
     selectEmailKetua
@@ -49,10 +50,11 @@ export default function Home() {
       },
       customerDetails: {
         first_name: ketua,
+        last_name:  `(${selectNamaSekolah})`,
         phone: phone,
         email: selectEmailKetua,
         notes: "Thank you",
-      },
+      },      
       itemDetails: [
         {
           id: uniqueId,
@@ -152,6 +154,7 @@ export default function Home() {
       selectedCategory,
       price,
       newUniqueId,
+      selectNamaSekolah,
       selectedNamaLengkap,
       phone,
       selectEmailKetua
